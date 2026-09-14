@@ -43,6 +43,71 @@ export const toolbelt = [
   "AWS SageMaker", "Docker", "Airflow", "Git", "Weights & Biases",
 ];
 
+export const coreTechGroups = [
+  {
+    mark: "ML",
+    title: "Machine Learning",
+    description: "PyTorch, TensorFlow, scikit-learn, and transformer workflows.",
+  },
+  {
+    mark: "CV",
+    title: "Computer Vision",
+    description: "Image models, evaluation pipelines, and production inference.",
+  },
+  {
+    mark: "NLP",
+    title: "NLP & Transformers",
+    description: "Language modeling, embeddings, and Hugging Face tooling.",
+  },
+  {
+    mark: "OPS",
+    title: "MLOps & Data",
+    description: "Docker, Airflow, SageMaker, SQL, and reliable data pipelines.",
+  },
+];
+
+export const projects = [
+  {
+    number: "01",
+    visual: "signal",
+    title: "Add project title",
+    description: "Replace this description with the problem your project solves and the result it creates.",
+    tags: ["Python", "PyTorch", "API"],
+    problem: "Add the real problem statement",
+    stack: "Add the main technologies",
+    useCase: "Add the practical use case",
+  },
+  {
+    number: "02",
+    visual: "amber",
+    title: "Add project title",
+    description: "Use this space for a concise project summary, research note, or deployed system overview.",
+    tags: ["Computer Vision", "Docker", "MLOps"],
+    problem: "Add the real problem statement",
+    stack: "Add the main technologies",
+    useCase: "Add the practical use case",
+  },
+  {
+    number: "03",
+    visual: "teal",
+    title: "Add project title",
+    description: "Show what you built, what changed because of it, and where visitors can explore the work.",
+    tags: ["NLP", "Transformers", "Data"],
+    problem: "Add the real problem statement",
+    stack: "Add the main technologies",
+    useCase: "Add the practical use case",
+  },
+];
+
+export const projectScreenshots = [
+  { number: "01", title: "Add project screenshot", visual: "signal" },
+  { number: "02", title: "Add project screenshot", visual: "amber" },
+  { number: "03", title: "Add project screenshot", visual: "teal" },
+  { number: "04", title: "Add project screenshot", visual: "violet" },
+  { number: "05", title: "Add project screenshot", visual: "blue" },
+  { number: "06", title: "Add project screenshot", visual: "green" },
+];
+
 // Timeline — add/remove objects freely, order top to bottom (most recent first)
 export const experience = [
   {
@@ -152,7 +217,7 @@ export const contact = {
   heading: "Let's build something that learns well.",
   blurb: "Open to ML engineering roles, research collaborations, and consulting on production deep learning systems.",
   links: [
-    { label: "Email", value: "alex.rivera@placeholder.com", href: "mailto:alex.rivera@placeholder.com" },
+    { label: "Email", value: "roxas.kylemaverick.gudalle@gmail.com", href: "mailto:roxas.kylemaverick.gudalle@gmail.com" },
     { label: "LinkedIn", value: "/in/placeholder", href: "#" },
     { label: "GitHub", value: "/placeholder", href: "#" },
   ],

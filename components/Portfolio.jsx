@@ -3,10 +3,12 @@ import NeuralBackground from "./NeuralBackground";
 import {
   profile,
   heroChart,
-  skills,
   toolbelt,
   experience,
   certificates,
+  coreTechGroups,
+  projects,
+  projectScreenshots,
   contact,
 } from "../data/portfolioData";
 import "./Portfolio.css";
@@ -15,7 +17,6 @@ export default function Portfolio() {
   const [typedName, setTypedName] = useState("");
   const [certificateField, setCertificateField] = useState("All");
   const [isCertificatePaused, setIsCertificatePaused] = useState(false);
-  const [canScrollCertificates, setCanScrollCertificates] = useState({ left: false, right: true });
   const certificatesScroller = useRef(null);
   const resumeAutoScrollTimer = useRef(null);
 
@@ -23,28 +24,13 @@ export default function Portfolio() {
   const visibleCertificates = certificateField === "All"
     ? certificates
     : certificates.filter((certificate) => certificate.field === certificateField);
-
-  const updateCertificateScrollState = () => {
-    const scroller = certificatesScroller.current;
-    if (!scroller) return;
-
-    setCanScrollCertificates({
-      left: scroller.scrollLeft > 4,
-      right: scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 4,
-    });
-  };
-
-  const scrollCertificates = (direction) => {
-    const scroller = certificatesScroller.current;
-    if (!scroller) return;
-
-    pauseAutoScrollTemporarily();
-    scroller.scrollBy({
-      left: direction * (scroller.clientWidth + 28) / 2,
-      behavior: "smooth",
-    });
-    window.setTimeout(updateCertificateScrollState, 350);
-  };
+  const hasCarousel = visibleCertificates.length > 2;
+  const carouselCertificates = hasCarousel
+    ? [0, 1, 2, 3, 4].flatMap((copy) => visibleCertificates.map((certificate) => ({
+      ...certificate,
+      id: `${certificate.id}-${copy}`,
+    })))
+    : visibleCertificates;
 
   const pauseAutoScrollTemporarily = () => {
     setIsCertificatePaused(true);
@@ -54,31 +40,53 @@ export default function Portfolio() {
     }, 3000);
   };
 
+  const scrollCertificates = (direction, pause = true) => {
+    const scroller = certificatesScroller.current;
+    const firstCard = scroller?.firstElementChild;
+    if (!scroller || !firstCard || !hasCarousel) return;
+
+    if (pause) pauseAutoScrollTemporarily();
+
+    const cardStep = firstCard.getBoundingClientRect().width + 28;
+    scroller.scrollBy({ left: direction * cardStep, behavior: "smooth" });
+  };
+
+  const normalizeCertificateScroll = () => {
+    const scroller = certificatesScroller.current;
+    const firstCard = scroller?.firstElementChild;
+    if (!scroller || !firstCard || visibleCertificates.length < 2) return;
+
+    const cycleWidth = (firstCard.getBoundingClientRect().width + 28) * visibleCertificates.length;
+    if (scroller.scrollLeft < cycleWidth) {
+      scroller.scrollLeft += cycleWidth;
+    } else if (scroller.scrollLeft > cycleWidth * 3) {
+      scroller.scrollLeft -= cycleWidth;
+    }
+  };
+
+  const scrollCertificatesWithWheel = (event) => {
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    event.preventDefault();
+    pauseAutoScrollTemporarily();
+    certificatesScroller.current?.scrollBy({ left: event.deltaY, behavior: "auto" });
+  };
+
   useEffect(() => {
     const scroller = certificatesScroller.current;
     if (!scroller) return;
 
-    scroller.scrollTo({ left: 0, behavior: "smooth" });
-    window.requestAnimationFrame(updateCertificateScrollState);
-  }, [certificateField]);
+    const firstCard = scroller.firstElementChild;
+    const cardStep = firstCard ? firstCard.getBoundingClientRect().width + 28 : 0;
+    const cycleWidth = cardStep * visibleCertificates.length;
+    scroller.scrollTo({ left: hasCarousel ? cycleWidth * 2 : 0, behavior: "auto" });
+  }, [certificateField, visibleCertificates.length, hasCarousel]);
 
   useEffect(() => {
     const scroller = certificatesScroller.current;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!scroller || certificateField !== "All" || isCertificatePaused || prefersReducedMotion) return undefined;
 
-    const autoScroll = () => {
-      const reachedEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2;
-      if (reachedEnd) {
-        scroller.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        scroller.scrollBy({
-          left: (scroller.clientWidth + 28) / 2,
-          behavior: "smooth",
-        });
-      }
-      window.setTimeout(updateCertificateScrollState, 700);
-    };
+    const autoScroll = () => scrollCertificates(1, false);
 
     const autoScrollTimer = window.setInterval(autoScroll, 6500);
     return () => window.clearInterval(autoScrollTimer);
@@ -111,9 +119,11 @@ export default function Portfolio() {
             <span className="typing-caret" aria-hidden="true" />
           </div>
           <ul className="nav-links">
-            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            
             <li><a href="#experience">Experience</a></li>
             <li><a href="#certificates">Certificates</a></li>
+            <li><a href="#project-gallery">Project Gallery</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
         </div>
@@ -145,23 +155,76 @@ export default function Portfolio() {
           </div>
         </section>
 
-        {/* ---------- SKILLS ---------- */}
-        <section id="skills">
+        {/* ---------- CORE TECH ---------- */}
+        <section id="core-tech">
+          <div className="section-head core-tech-head">
+            <div>
+              <span className="eyebrow">The engine room</span>
+              <h2>Core Tech</h2>
+              <p className="core-tech-lede">The frameworks, libraries, and platforms I build real things with.</p>
+            </div>
+            <span className="count">{String(coreTechGroups.length).padStart(2, "0")} stacks</span>
+          </div>
+          <div className="tech-stack-marquee" aria-label="Core technology stacks">
+            <div className="tech-stack-track">
+              {[0, 1].map((copy) => (
+                <div className="tech-stack-set" aria-hidden={copy === 1} key={copy}>
+                  {coreTechGroups.map((group) => (
+                    <article className="tech-stack-card" key={`${copy}-${group.title}`}>
+                      <span className="tech-stack-mark" aria-hidden="true">{group.mark}</span>
+                      <h3>{group.title}</h3>
+                      <p>{group.description}</p>
+                    </article>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="tech-marquee" aria-label="Core technology and software tools">
+            <div className="tech-marquee-track">
+              {[0, 1].map((copy) => (
+                <div className="tech-marquee-set" aria-hidden={copy === 1} key={copy}>
+                  {toolbelt.map((tool) => (
+                    <span className="tech-item" key={`${copy}-${tool}`}>
+                      <span className="tech-item-mark" aria-hidden="true">{tool.slice(0, 2).toUpperCase()}</span>
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- PROJECTS ---------- */}
+        <section id="projects">
           <div className="section-head">
-            <h2>Skills</h2>
-            <span className="count">{String(skills.length).padStart(2, "0")} core areas</span>
+            <h2>Projects</h2>
+            <span className="count">{String(projects.length).padStart(2, "0")} studies</span>
           </div>
-          <div className="skills-grid">
-            {skills.map((s) => (
-              <div className="skill-row" key={s.name}>
-                <span className="name">{s.name}</span>
-                <span className="bar"><span style={{ width: `${s.pct}%` }} /></span>
-                <span className="pct">{s.pct}%</span>
-              </div>
+          <div className="projects-grid">
+            {projects.map((project) => (
+              <article className="project-card" key={project.number}>
+                <div className={`project-visual project-visual-${project.visual}`}>
+                  <span className="project-index">{project.number}</span>
+                  <span className="project-orbit project-orbit-one" />
+                  <span className="project-orbit project-orbit-two" />
+                  <span className="project-visual-mark">ML</span>
+                </div>
+                <div className="project-content">
+                  <h3>{project.title}</h3>
+                  <p className="project-description">{project.description}</p>
+                  <div className="project-tags">
+                    {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                  </div>
+                  <div className="project-notes">
+                    <p><strong>Problem:</strong> {project.problem}</p>
+                    <p><strong>Stack:</strong> {project.stack}</p>
+                    <p><strong>Use case:</strong> {project.useCase}</p>
+                  </div>
+                </div>
+              </article>
             ))}
-          </div>
-          <div className="toolbelt">
-            {toolbelt.map((tool) => <span key={tool}>{tool}</span>)}
           </div>
         </section>
 
@@ -204,36 +267,32 @@ export default function Portfolio() {
             ))}
           </div>
           <div
-            className="certificate-carousel"
+            className={hasCarousel ? "certificate-carousel" : "certificate-carousel is-static"}
             onPointerDown={pauseAutoScrollTemporarily}
             onTouchStart={pauseAutoScrollTemporarily}
             onFocus={pauseAutoScrollTemporarily}
           >
-            <button
+            {hasCarousel && <button
               className="certificate-arrow certificate-arrow-left"
               type="button"
               onClick={() => scrollCertificates(-1)}
-              disabled={!canScrollCertificates.left}
               aria-label="Show previous certificates"
             >
               <span aria-hidden="true">←</span>
-            </button>
-            <div className="cert-grid" ref={certificatesScroller} onScroll={updateCertificateScrollState}>
-            {visibleCertificates.map((c) => (
+            </button>}
+            <div
+              className="cert-grid"
+              ref={certificatesScroller}
+              onScroll={normalizeCertificateScroll}
+              onWheel={scrollCertificatesWithWheel}
+            >
+            {carouselCertificates.map((c) => (
               <article className="certificate-document" key={c.id}>
                 {c.asset ? (
-                  c.assetType === "image" ? (
-                    <img className="certificate-preview" src={c.asset} alt={`${c.title} certificate`} />
-                  ) : (
-                    <iframe
-                      className="certificate-preview"
-                      src={`${c.asset}#toolbar=0&navpanes=0`}
-                      title={`${c.title} certificate`}
-                    />
-                  )
+                  <img className="certificate-preview" src={c.asset} alt={`${c.title} certificate`} />
                 ) : (
                   <div className="certificate-preview certificate-placeholder">
-                    <strong>Add certificate {c.assetType.toUpperCase()}</strong>
+                    <strong>Add certificate image</strong>
                     <span>Set the asset path in portfolioData.js</span>
                   </div>
                 )}
@@ -242,24 +301,42 @@ export default function Portfolio() {
                     <h3>{c.title}</h3>
                     <p>{c.issuer} · {c.year}</p>
                   </div>
-                  {c.asset && (
-                    <a href={c.asset} target="_blank" rel="noreferrer" aria-label={`Open ${c.title} full certificate`}>
-                      ↗
-                    </a>
-                  )}
                 </div>
+                {c.asset && (
+                  <a className="certificate-open" href={c.asset} target="_blank" rel="noreferrer" aria-label={`Open ${c.title} full certificate`}>
+                    <span>Open full certificate</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                )}
               </article>
             ))}
             </div>
-            <button
+            {hasCarousel && <button
               className="certificate-arrow certificate-arrow-right"
               type="button"
               onClick={() => scrollCertificates(1)}
-              disabled={!canScrollCertificates.right}
               aria-label="Show next certificates"
             >
               <span aria-hidden="true">→</span>
-            </button>
+            </button>}
+          </div>
+        </section>
+
+        {/* ---------- PROJECT SCREENSHOTS ---------- */}
+        <section id="project-gallery">
+          <div className="project-gallery-heading">
+            <span className="eyebrow">Visual archive</span>
+            <h2>Project Gallery</h2>
+            <p>Screenshot previews from projects, interfaces, and experiments.</p>
+          </div>
+          <div className="project-screenshot-grid">
+            {projectScreenshots.map((screenshot) => (
+              <figure className={`project-screenshot project-visual-${screenshot.visual}`} key={screenshot.number}>
+                <span className="project-index">{screenshot.number}</span>
+                <span className="project-screenshot-placeholder">Add screenshot here</span>
+                <figcaption>{screenshot.title}</figcaption>
+              </figure>
+            ))}
           </div>
         </section>
 
