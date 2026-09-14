@@ -4,6 +4,14 @@
 //  from the objects below. Replace every PLACEHOLDER value.
 // ============================================================
 
+import certificateCompletion from "../src/src/assets/Certificate_of_Completion.png";
+import certificateAi from "../src/src/assets/Kyle Maverick G._CR1271_certificate.png";
+import certificateMl1273 from "../src/src/assets/Kyle Maverick G._CR1273_certificate.png";
+import certificatePython from "../src/src/assets/Kyle Maverick G._CR641_certificate.png";
+import certificateMl640 from "../src/src/assets/Kyle Maverick G._CR640_certificate.png";
+import certificateLinux from "../src/src/assets/Kyle Maverick G._Roxas_Plesk Obsidian for Linux Expert Certification.png";
+import certificateRoxas from "../src/src/assets/Certificate of Roxas.png";
+
 export const profile = {
   name: "Kyle Maverick G. Roxas",          // shown in the nav bar ("alex · rivera")
   role: "Machine Learning & AI Engineer", // small label above the headline
@@ -74,7 +82,7 @@ export const certificates = [
     title: "Azure AI Fundamentals",
     issuer: "TESDA Online Program",
     id: "SVUsx3BA0g",
-    asset: "/src/assets/Certificate_of_Completion.png",
+    asset: certificateCompletion,
     assetType: "image",
        field: "AI & Machine Learning",
   },
@@ -84,7 +92,7 @@ export const certificates = [
     title: "Basics of Artificial Intelligence",
     issuer: "UniAthena with Cambridge International Qualifications",
     id: "CR1271",
-    asset: "/src/assets/Kyle Maverick G._CR1271_certificate.png",
+    asset: certificateAi,
     assetType: "image",
        field: "AI & Machine Learning",
   },
@@ -94,7 +102,7 @@ export const certificates = [
     title: "Basics of Machine Learning Algorithms",
     issuer: "UniAthena with Cambridge International Qualifications",
     id: "CR1273",
-    asset: "/src/assets/Kyle Maverick G._CR1273_certificate.png",
+    asset: certificateMl1273,
     assetType: "image",
        field: "AI & Machine Learning",
   },
@@ -104,7 +112,7 @@ export const certificates = [
     title: "Basics of Python",
     issuer: "UniAthena with Cambridge International Qualifications",
     id: "CR641",
-    asset: "/src/assets/Kyle Maverick G._CR641_certificate.png",
+    asset: certificatePython,
     assetType: "image",
        field: "Programming",
   },
@@ -114,7 +122,7 @@ export const certificates = [
     title: "Basics of Machine Learning Algorithms",
     issuer: "UniAthena with Cambridge International Qualifications",
     id: "CR640",
-    asset: "/src/assets/Kyle Maverick G._CR640_certificate.png",
+    asset: certificateMl640,
     assetType: "image",
        field: "AI & Machine Learning",
   },
@@ -124,7 +132,7 @@ export const certificates = [
     title: "Plesk Obsidian Linux Expert",
     issuer: "Plesk University",
     id: "PLESK-LINUX-EXPERT",
-    asset: "/src/assets/Kyle Maverick G._Roxas_Plesk Obsidian for Linux Expert Certification.png",
+    asset: certificateLinux,
     assetType: "image",
     field: "IT Fundamentals / Other",
   },
@@ -134,7 +142,7 @@ export const certificates = [
     title: "Tech-Preneurship: Empowering CCS Students for Innovative Ventures",
     issuer: "Quezon City University — College of Computer Studies",
     id: "ROXAS-TECH-PRENEURSHIP-2024",
-    asset: "/src/assets/Certificate of Roxas.png",
+    asset: certificateRoxas,
     assetType: "image",
     field: "IT Fundamentals / Other",
   },
