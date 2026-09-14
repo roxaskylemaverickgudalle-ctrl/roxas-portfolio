@@ -7,6 +7,7 @@ const reactJsxRuntime = fileURLToPath(new URL("./node_modules/react/jsx-runtime.
 const reactJsxDevRuntime = fileURLToPath(new URL("./node_modules/react/jsx-dev-runtime.js", import.meta.url));
 
 export default defineConfig({
+  base: "/roxas-portfolio/",
   resolve: {
     alias: [
       { find: "react/jsx-runtime", replacement: reactJsxRuntime },
