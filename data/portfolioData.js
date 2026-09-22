@@ -11,6 +11,10 @@ import certificatePython from "../src/src/assets/Kyle Maverick G._CR641_certific
 import certificateMl640 from "../src/src/assets/Kyle Maverick G._CR640_certificate.png";
 import certificateLinux from "../src/src/assets/Kyle Maverick G._Roxas_Plesk Obsidian for Linux Expert Certification.png";
 import certificateRoxas from "../src/src/assets/Certificate of Roxas.png";
+import machineLearningBackground from "../src/src/assets/machine_learning.jpg";
+import computerVisionBackground from "../src/src/assets/Computer_vision.png";
+import nlpBackground from "../src/src/assets/NLP_Transformer.jpg";
+import mlopsBackground from "../src/src/assets/MLops.jpg";
 
 export const profile = {
   name: "Kyle Maverick G. Roxas",          // shown in the nav bar ("alex · rivera")
@@ -48,21 +52,25 @@ export const coreTechGroups = [
     mark: "ML",
     title: "Machine Learning",
     description: "PyTorch, TensorFlow, scikit-learn, and transformer workflows.",
+    background: machineLearningBackground,
   },
   {
     mark: "CV",
     title: "Computer Vision",
     description: "Image models, evaluation pipelines, and production inference.",
+    background: computerVisionBackground,
   },
   {
     mark: "NLP",
     title: "NLP & Transformers",
     description: "Language modeling, embeddings, and Hugging Face tooling.",
+    background: nlpBackground,
   },
   {
     mark: "OPS",
     title: "MLOps & Data",
     description: "Docker, Airflow, SageMaker, SQL, and reliable data pipelines.",
+    background: mlopsBackground,
   },
 ];
 

@@ -170,8 +170,11 @@ export default function Portfolio() {
               {[0, 1].map((copy) => (
                 <div className="tech-stack-set" aria-hidden={copy === 1} key={copy}>
                   {coreTechGroups.map((group) => (
-                    <article className="tech-stack-card" key={`${copy}-${group.title}`}>
-                      <span className="tech-stack-mark" aria-hidden="true">{group.mark}</span>
+                    <article
+                      className={group.background ? "tech-stack-card has-background" : "tech-stack-card"}
+                      key={`${copy}-${group.title}`}
+                      style={group.background ? { backgroundImage: `linear-gradient(rgba(5, 18, 35, 0.42), rgba(5, 18, 35, 0.58)), url("${group.background}")` } : undefined}
+                    >
                       <h3>{group.title}</h3>
                       <p>{group.description}</p>
                     </article>
