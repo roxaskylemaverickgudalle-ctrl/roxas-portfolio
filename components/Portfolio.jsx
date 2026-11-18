@@ -8,23 +8,75 @@ import {
   certificates,
   coreTechGroups,
   projects,
-  projectScreenshots,
+  projectGallery,
   contact,
 } from "../data/portfolioData";
 import "./Portfolio.css";
 
 export default function Portfolio() {
-  const [typedName, setTypedName] = useState("");
   const [certificateField, setCertificateField] = useState("All");
-  const [isCertificatePaused, setIsCertificatePaused] = useState(false);
+  const [isCertificateAutoScrollActive, setIsCertificateAutoScrollActive] = useState(true);
+  const [isCertificateVisible, setIsCertificateVisible] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatDraft, setChatDraft] = useState("");
+  const [chatMessages, setChatMessages] = useState([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const chatApiUrl = import.meta.env.VITE_CHAT_API_URL?.trim();
+  const certificatesSection = useRef(null);
+  const navRef = useRef(null);
+  const navInnerRef = useRef(null);
+  const navMarkRef = useRef(null);
+  const navNameRef = useRef(null);
+  const navMonogramRef = useRef(null);
   const certificatesScroller = useRef(null);
-  const resumeAutoScrollTimer = useRef(null);
+  const certificateDrag = useRef(null);
+
+  const sendChatMessage = async (event) => {
+    event.preventDefault();
+    const message = chatDraft.trim();
+    if (!message || isChatLoading) return;
+
+    const conversation = [...chatMessages, { role: "user", text: message }].slice(-12);
+    setChatMessages(conversation);
+    setChatError("");
+    setIsChatLoading(true);
+
+    try {
+      if (!chatApiUrl) {
+        throw new Error("Chat isn't configured yet. Add VITE_CHAT_API_URL to the portfolio environment.");
+      }
+
+      const response = await fetch(chatApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: conversation.map(({ role, text }) => ({ role, content: text })),
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || "The chat service couldn't complete that request.");
+      }
+      if (typeof payload?.reply !== "string" || !payload.reply.trim()) {
+        throw new Error("The chat service returned an empty response. Please try again.");
+      }
+
+      setChatMessages((messages) => [...messages, { role: "assistant", text: payload.reply }]);
+      setChatDraft("");
+    } catch (error) {
+      setChatMessages((messages) => messages.slice(0, -1));
+      setChatError(error instanceof Error ? error.message : "The chat request failed. Please try again.");
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
 
   const certificateFields = ["All", ...new Set(certificates.map((certificate) => certificate.field))];
   const visibleCertificates = certificateField === "All"
     ? certificates
     : certificates.filter((certificate) => certificate.field === certificateField);
-  const hasCarousel = visibleCertificates.length > 2;
+  const hasCarousel = visibleCertificates.length > 1;
   const carouselCertificates = hasCarousel
     ? [0, 1, 2, 3, 4].flatMap((copy) => visibleCertificates.map((certificate) => ({
       ...certificate,
@@ -32,20 +84,10 @@ export default function Portfolio() {
     })))
     : visibleCertificates;
 
-  const pauseAutoScrollTemporarily = () => {
-    setIsCertificatePaused(true);
-    window.clearTimeout(resumeAutoScrollTimer.current);
-    resumeAutoScrollTimer.current = window.setTimeout(() => {
-      setIsCertificatePaused(false);
-    }, 3000);
-  };
-
-  const scrollCertificates = (direction, pause = true) => {
+  const scrollCertificates = (direction) => {
     const scroller = certificatesScroller.current;
     const firstCard = scroller?.firstElementChild;
     if (!scroller || !firstCard || !hasCarousel) return;
-
-    if (pause) pauseAutoScrollTemporarily();
 
     const cardStep = firstCard.getBoundingClientRect().width + 28;
     scroller.scrollBy({ left: direction * cardStep, behavior: "smooth" });
@@ -64,11 +106,41 @@ export default function Portfolio() {
     }
   };
 
-  const scrollCertificatesWithWheel = (event) => {
-    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+  const startCertificateDrag = (event) => {
+    if (event.button !== 0) return;
+    certificateDrag.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScrollLeft: event.currentTarget.scrollLeft,
+      didDrag: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const moveCertificateDrag = (event) => {
+    const drag = certificateDrag.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    const distance = event.clientX - drag.startX;
+    if (Math.abs(distance) > 5) drag.didDrag = true;
+    if (drag.didDrag) event.currentTarget.scrollLeft = drag.startScrollLeft - distance;
+  };
+
+  const finishCertificateDrag = (event) => {
+    const drag = certificateDrag.current;
+    if (drag?.pointerId === event.pointerId) {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      certificateDrag.current = { ...drag, pointerId: null };
+    }
+  };
+
+  const preventClickAfterCertificateDrag = (event) => {
+    if (!certificateDrag.current?.didDrag) return;
     event.preventDefault();
-    pauseAutoScrollTemporarily();
-    certificatesScroller.current?.scrollBy({ left: event.deltaY, behavior: "auto" });
+    event.stopPropagation();
+    certificateDrag.current = null;
   };
 
   useEffect(() => {
@@ -82,49 +154,155 @@ export default function Portfolio() {
   }, [certificateField, visibleCertificates.length, hasCarousel]);
 
   useEffect(() => {
-    const scroller = certificatesScroller.current;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!scroller || certificateField !== "All" || isCertificatePaused || prefersReducedMotion) return undefined;
+    const carousel = certificatesSection.current;
+    if (!carousel || !hasCarousel) {
+      setIsCertificateVisible(false);
+      return undefined;
+    }
 
-    const autoScroll = () => scrollCertificates(1, false);
-
-    const autoScrollTimer = window.setInterval(autoScroll, 6500);
-    return () => window.clearInterval(autoScrollTimer);
-  }, [certificateField, isCertificatePaused]);
-
-  useEffect(() => () => window.clearTimeout(resumeAutoScrollTimer.current), []);
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsCertificateVisible(entry.isIntersecting);
+    }, { threshold: 0.1 });
+    observer.observe(carousel);
+    return () => observer.disconnect();
+  }, [certificateField, hasCarousel]);
 
   useEffect(() => {
-    let characterIndex = 0;
-    const typingTimer = window.setInterval(() => {
-      characterIndex += 1;
-      setTypedName(profile.name.slice(0, characterIndex));
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!isCertificateVisible || !isCertificateAutoScrollActive || prefersReducedMotion || !hasCarousel) return undefined;
 
-      if (characterIndex === profile.name.length) {
-        window.clearInterval(typingTimer);
+    const autoScrollTimer = window.setInterval(() => {
+      const scroller = certificatesScroller.current;
+      const firstCard = scroller?.firstElementChild;
+      if (!scroller || !firstCard || !hasCarousel) return;
+      const cardStep = firstCard.getBoundingClientRect().width + 28;
+      scroller.scrollBy({ left: cardStep, behavior: "smooth" });
+    }, 3000);
+
+    return () => window.clearInterval(autoScrollTimer);
+  }, [hasCarousel, isCertificateAutoScrollActive, isCertificateVisible]);
+
+  useEffect(() => {
+    const stopWhenClickingOutside = (event) => {
+      if (!certificatesSection.current?.contains(event.target)) {
+        setIsCertificateAutoScrollActive(false);
       }
-    }, 110);
+    };
+    document.addEventListener("pointerdown", stopWhenClickingOutside);
 
-    return () => window.clearInterval(typingTimer);
+    return () => {
+      document.removeEventListener("pointerdown", stopWhenClickingOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const navInner = navInnerRef.current;
+    if (!nav || !navInner) return undefined;
+
+    let animationFrame = 0;
+    const updateNav = () => {
+      animationFrame = 0;
+      const progress = Math.min(1, Math.max(0, window.scrollY / 240));
+      const isMobile = window.innerWidth <= 720;
+      const compactMarkSize = isMobile ? 34 : 38;
+      const fullNameWidth = navNameRef.current
+        ? navNameRef.current.scrollWidth + (isMobile ? 12 : 16)
+        : compactMarkSize;
+      const initialWidth = isMobile ? window.innerWidth : Math.min(980, window.innerWidth);
+      const compactWidth = Math.min(window.innerWidth - 32, isMobile ? 230 : 310);
+
+      nav.style.setProperty("--nav-progress", progress.toString());
+      nav.style.setProperty("--nav-header-bg", `rgba(238, 241, 245, ${0.88 * (1 - progress)})`);
+      nav.style.setProperty("--nav-header-border", `rgba(213, 219, 228, ${1 - progress})`);
+      nav.style.setProperty("--nav-header-blur", `${8 * (1 - progress)}px`);
+      navInner.style.setProperty("--nav-width", `${initialWidth + (compactWidth - initialWidth) * progress}px`);
+      navInner.style.setProperty("--nav-padding-y", `${(isMobile ? 14 : 18) + ((isMobile ? 7 : 8) - (isMobile ? 14 : 18)) * progress}px`);
+      navInner.style.setProperty("--nav-padding-x", `${(isMobile ? 16 : 32) + ((isMobile ? 10 : 14) - (isMobile ? 16 : 32)) * progress}px`);
+      navInner.style.setProperty("--nav-margin-y", `${14 * progress}px`);
+      navInner.style.setProperty("--nav-radius", `${22 * progress}px`);
+      navInner.style.setProperty("--nav-gap", `${(isMobile ? 8 : 18) * progress}px`);
+      navInner.style.setProperty("--nav-background", `rgba(255, 255, 255, ${0.94 * progress})`);
+      navInner.style.setProperty("--nav-border", `rgba(213, 219, 228, ${0.9 * progress})`);
+      navInner.style.setProperty("--nav-shadow", `0 8px 26px rgba(23, 27, 36, ${0.12 * progress})`);
+      navInner.style.setProperty("--nav-blur", `${12 * progress}px`);
+      navMarkRef.current?.style.setProperty("--nav-mark-width", `${fullNameWidth + (compactMarkSize - fullNameWidth) * progress}px`);
+      navMarkRef.current?.style.setProperty("--nav-mark-height", `${42 + (compactMarkSize - 42) * progress}px`);
+      navMarkRef.current?.style.setProperty("--nav-mark-radius", `${12 * progress}px`);
+      navMarkRef.current?.style.setProperty("--nav-mark-background", `rgba(255, 255, 255, ${0.94 * progress})`);
+      navMarkRef.current?.style.setProperty("--nav-mark-border", `rgba(213, 219, 228, ${0.9 * progress})`);
+      navNameRef.current?.style.setProperty("--nav-name-opacity", `${1 - progress}`);
+      navMonogramRef.current?.style.setProperty("--nav-monogram-opacity", progress.toString());
+      navInner.style.setProperty("--nav-link-gap", isMobile ? "4px" : `${28 + (8 - 28) * progress}px`);
+      navInner.style.setProperty("--nav-label-size", isMobile ? "0" : `${1 - progress}`);
+      navInner.style.setProperty("--nav-icon-size", `${(isMobile ? 16 : 17) * (isMobile ? 1 : progress)}px`);
+      navInner.style.setProperty("--nav-icon-opacity", isMobile ? "1" : progress.toString());
+      navInner.style.setProperty("--nav-icon-gap", `${(isMobile ? 0 : 7) * progress}px`);
+
+      navInner.querySelectorAll(".nav-link-label").forEach((label) => {
+        const linkWidth = isMobile
+          ? 30
+          : label.scrollWidth + (compactMarkSize - label.scrollWidth) * progress;
+        label.parentElement.style.setProperty("--nav-link-width", `${linkWidth}px`);
+        label.style.setProperty("--nav-label-width", `${label.scrollWidth * (isMobile ? 0 : 1 - progress)}px`);
+      });
+    };
+    const scheduleNavUpdate = () => {
+      if (!animationFrame) animationFrame = window.requestAnimationFrame(updateNav);
+    };
+
+    updateNav();
+    window.addEventListener("scroll", scheduleNavUpdate, { passive: true });
+    window.addEventListener("resize", scheduleNavUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", scheduleNavUpdate);
+      window.removeEventListener("resize", scheduleNavUpdate);
+      window.cancelAnimationFrame(animationFrame);
+    };
   }, []);
 
   return (
     <>
       <NeuralBackground />
 
-      <header className="nav">
-        <div className="nav-inner">
-          <div className="nav-mark" aria-label={profile.name}>
-            <span aria-hidden="true">{typedName}</span>
-            <span className="typing-caret" aria-hidden="true" />
-          </div>
+      <header className="nav" ref={navRef}>
+        <div className="nav-inner" ref={navInnerRef}>
+          <a className="nav-mark" href="#" ref={navMarkRef} aria-label={`${profile.name} — back to top`} title="Back to top">
+            <span className="nav-name" ref={navNameRef}>{profile.name}</span>
+            <span className="nav-monogram" ref={navMonogramRef} aria-hidden="true">KR</span>
+          </a>
           <ul className="nav-links">
-            <li><a href="#projects">Projects</a></li>
-            
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#certificates">Certificates</a></li>
-            <li><a href="#project-gallery">Project Gallery</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li>
+              <a href="#projects" aria-label="Projects" title="Projects">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M8 4V2m8 2V2M3 9h18M8 13h3m-3 4h8" /></svg>
+                <span className="nav-link-label">Projects</span>
+              </a>
+            </li>
+            <li>
+              <a href="#experience" aria-label="Experience" title="Experience">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2" /><path d="M8 7V4h8v3M3 12h18m-11 0v2h4v-2" /></svg>
+                <span className="nav-link-label">Experience</span>
+              </a>
+            </li>
+            <li>
+              <a href="#certificates" aria-label="Certificates" title="Certificates">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-3-6 3z" /><path d="m9 10 2 2 4-4" /></svg>
+                <span className="nav-link-label">Certificates</span>
+              </a>
+            </li>
+            <li>
+              <a href="#project-gallery" aria-label="Project Gallery" title="Project Gallery">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1" /><rect x="13" y="3" width="8" height="5" rx="1" /><rect x="13" y="10" width="8" height="11" rx="1" /><rect x="3" y="13" width="8" height="8" rx="1" /></svg>
+                <span className="nav-link-label">Gallery</span>
+              </a>
+            </li>
+            <li>
+              <a href="#contact" aria-label="Contact" title="Contact">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+                <span className="nav-link-label">Contact</span>
+              </a>
+            </li>
           </ul>
         </div>
       </header>
@@ -188,9 +366,9 @@ export default function Portfolio() {
               {[0, 1].map((copy) => (
                 <div className="tech-marquee-set" aria-hidden={copy === 1} key={copy}>
                   {toolbelt.map((tool) => (
-                    <span className="tech-item" key={`${copy}-${tool}`}>
-                      <span className="tech-item-mark" aria-hidden="true">{tool.slice(0, 2).toUpperCase()}</span>
-                      {tool}
+                    <span className="tech-item" key={`${copy}-${tool.name}`}>
+                      <img className="tech-item-logo" src={tool.logo} alt="" aria-hidden="true" />
+                      {tool.name}
                     </span>
                   ))}
                 </div>
@@ -203,7 +381,7 @@ export default function Portfolio() {
         <section id="projects">
           <div className="section-head">
             <h2>Projects</h2>
-            <span className="count">{String(projects.length).padStart(2, "0")} studies</span>
+            <span className="count">{String(projects.length).padStart(2, "0")} projects</span>
           </div>
           <div className="projects-grid">
             {projects.map((project) => (
@@ -212,7 +390,7 @@ export default function Portfolio() {
                   <span className="project-index">{project.number}</span>
                   <span className="project-orbit project-orbit-one" />
                   <span className="project-orbit project-orbit-two" />
-                  <span className="project-visual-mark">ML</span>
+                  <span className="project-visual-mark">{project.mark}</span>
                 </div>
                 <div className="project-content">
                   <h3>{project.title}</h3>
@@ -225,6 +403,14 @@ export default function Portfolio() {
                     <p><strong>Stack:</strong> {project.stack}</p>
                     <p><strong>Use case:</strong> {project.useCase}</p>
                   </div>
+                  <a
+                    className="project-repo-link"
+                    href={project.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Explore on GitHub <span aria-hidden="true">↗</span>
+                  </a>
                 </div>
               </article>
             ))}
@@ -252,7 +438,11 @@ export default function Portfolio() {
         </section>
 
         {/* ---------- CERTIFICATES ---------- */}
-        <section id="certificates">
+        <section
+          id="certificates"
+          ref={certificatesSection}
+          onClick={() => setIsCertificateAutoScrollActive(true)}
+        >
           <div className="section-head">
             <h2>Certificates</h2>
             <span className="count">{String(certificates.length).padStart(2, "0")} credentials</span>
@@ -269,12 +459,7 @@ export default function Portfolio() {
               </button>
             ))}
           </div>
-          <div
-            className={hasCarousel ? "certificate-carousel" : "certificate-carousel is-static"}
-            onPointerDown={pauseAutoScrollTemporarily}
-            onTouchStart={pauseAutoScrollTemporarily}
-            onFocus={pauseAutoScrollTemporarily}
-          >
+          <div className={hasCarousel ? "certificate-carousel" : "certificate-carousel is-static"}>
             {hasCarousel && <button
               className="certificate-arrow certificate-arrow-left"
               type="button"
@@ -287,7 +472,11 @@ export default function Portfolio() {
               className="cert-grid"
               ref={certificatesScroller}
               onScroll={normalizeCertificateScroll}
-              onWheel={scrollCertificatesWithWheel}
+              onPointerDown={startCertificateDrag}
+              onPointerMove={moveCertificateDrag}
+              onPointerUp={finishCertificateDrag}
+              onPointerCancel={finishCertificateDrag}
+              onClickCapture={preventClickAfterCertificateDrag}
             >
             {carouselCertificates.map((c) => (
               <article className="certificate-document" key={c.id}>
@@ -325,19 +514,24 @@ export default function Portfolio() {
           </div>
         </section>
 
-        {/* ---------- PROJECT SCREENSHOTS ---------- */}
+        {/* ---------- PROJECT GALLERY ---------- */}
         <section id="project-gallery">
           <div className="project-gallery-heading">
             <span className="eyebrow">Visual archive</span>
             <h2>Project Gallery</h2>
-            <p>Screenshot previews from projects, interfaces, and experiments.</p>
+            <p>A collection of project images and snapshots.</p>
           </div>
           <div className="project-screenshot-grid">
-            {projectScreenshots.map((screenshot) => (
-              <figure className={`project-screenshot project-visual-${screenshot.visual}`} key={screenshot.number}>
-                <span className="project-index">{screenshot.number}</span>
-                <span className="project-screenshot-placeholder">Add screenshot here</span>
-                <figcaption>{screenshot.title}</figcaption>
+            {projectGallery.map((item) => (
+              <figure className="project-screenshot" key={item.number}>
+                {item.image ? (
+                  <img className="project-gallery-image" src={item.image} alt={`${item.title} project`} />
+                ) : (
+                  <div className="project-gallery-placeholder">
+                    <span className="project-gallery-placeholder-icon" aria-hidden="true">+</span>
+                  </div>
+                )}
+                <figcaption className="project-screenshot-caption">{item.title}</figcaption>
               </figure>
             ))}
           </div>
@@ -352,14 +546,122 @@ export default function Portfolio() {
             </div>
             <div className="contact-links">
               {contact.links.map((l) => (
-                <a href={l.href} key={l.label}>{l.label} <span>{l.value}</span></a>
-              ))}
+              <a href={l.href} key={l.label}>
+                <span className="contact-label">{l.label}</span>
+                <span className="contact-value">{l.value}</span>
+              </a>
+            ))}
             </div>
           </div>
         </section>
       </main>
 
       <footer>built with React — edit src/data/portfolioData.js to make it yours</footer>
+
+      <aside className="portfolio-chat" aria-label="Portfolio chat preview">
+        {isChatOpen && (
+          <section className="portfolio-chat-panel" aria-label="Chat with Kyle's portfolio assistant">
+            <div className="portfolio-chat-header">
+              <div className="portfolio-chat-avatar" aria-hidden="true">KR</div>
+              <div className="portfolio-chat-heading">
+                <h2>Ask about my work</h2>
+                <span><i aria-hidden="true" /> {chatApiUrl ? "Llama 3.1 · Hugging Face" : "API setup required"}</span>
+              </div>
+              <button
+                className="portfolio-chat-close"
+                type="button"
+                onClick={() => setIsChatOpen(false)}
+                aria-label="Close chat"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+              </button>
+            </div>
+
+            <div className="portfolio-chat-messages" aria-live="polite">
+              <div className="portfolio-chat-message portfolio-chat-message-assistant">
+                <span className="portfolio-chat-message-label">KR assistant</span>
+                <p>Hey! I can help you explore Kyle&apos;s projects, experience, skills, and AI work.</p>
+              </div>
+              {chatMessages.map((message, index) => (
+                <div
+                  className={`portfolio-chat-message portfolio-chat-message-${message.role}`}
+                  key={`${message.role}-${index}`}
+                >
+                  {message.role === "assistant" && (
+                    <span className="portfolio-chat-message-label">KR assistant</span>
+                  )}
+                  <p>{message.text}</p>
+                </div>
+              ))}
+              {isChatLoading && (
+                <div className="portfolio-chat-message portfolio-chat-message-assistant portfolio-chat-typing" role="status">
+                  <span className="portfolio-chat-message-label">KR assistant</span>
+                  <p>Thinking<span aria-hidden="true">...</span></p>
+                </div>
+              )}
+              {chatError && (
+                <p className="portfolio-chat-error" role="alert">{chatError}</p>
+              )}
+              {chatMessages.length === 0 && (
+                <div className="portfolio-chat-suggestions">
+                  <span className="portfolio-chat-suggestions-label">Try asking</span>
+                  <div className="portfolio-chat-prompts" aria-label="Suggested questions">
+                    {[
+                      "What projects has Kyle built?",
+                      "Tell me about his AI work",
+                      "What technologies does he use?",
+                    ].map((prompt) => (
+                      <button
+                        type="button"
+                        key={prompt}
+                        onClick={() => setChatDraft(prompt)}
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="portfolio-chat-footer">
+              <form className="portfolio-chat-composer" onSubmit={sendChatMessage}>
+                <label className="portfolio-chat-input-label" htmlFor="portfolio-chat-input">
+                  Message the portfolio assistant
+                </label>
+                <input
+                  id="portfolio-chat-input"
+                  type="text"
+                  value={chatDraft}
+                  onChange={(event) => setChatDraft(event.target.value)}
+                  placeholder="Ask about Kyle's work..."
+                  autoComplete="off"
+                  maxLength={1200}
+                  disabled={isChatLoading}
+                />
+                <button type="submit" disabled={!chatDraft.trim() || isChatLoading} aria-label="Send message">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z" /></svg>
+                </button>
+              </form>
+              <p className="portfolio-chat-note">Powered by Llama 3.1 8B Instruct</p>
+            </div>
+          </section>
+        )}
+
+        <button
+          className={`portfolio-chat-launcher${isChatOpen ? " is-open" : ""}`}
+          type="button"
+          onClick={() => setIsChatOpen((open) => !open)}
+          aria-expanded={isChatOpen}
+          aria-label={isChatOpen ? "Close portfolio chat" : "Open portfolio chat"}
+        >
+          {isChatOpen ? (
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.5-4A7.5 7.5 0 1 1 20 11.5Z" /><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" /></svg>
+          )}
+        </button>
+      </aside>
     </>
   );
 }

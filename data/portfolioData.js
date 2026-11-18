@@ -11,10 +11,29 @@ import certificatePython from "../src/src/assets/Kyle Maverick G._CR641_certific
 import certificateMl640 from "../src/src/assets/Kyle Maverick G._CR640_certificate.png";
 import certificateLinux from "../src/src/assets/Kyle Maverick G._Roxas_Plesk Obsidian for Linux Expert Certification.png";
 import certificateRoxas from "../src/src/assets/Certificate of Roxas.png";
+import certificateConfluent from "../src/src/assets/KYLE MAVERICK ROXAS_signed.png";
+import certificateThreats from "../src/src/assets/Certificate_ai_data.png";
 import machineLearningBackground from "../src/src/assets/machine_learning.jpg";
 import computerVisionBackground from "../src/src/assets/Computer_vision.png";
 import nlpBackground from "../src/src/assets/NLP_Transformer.jpg";
 import mlopsBackground from "../src/src/assets/MLops.jpg";
+import numpyLogo from "../src/src/assets/numpy.png";
+import pandasLogo from "../src/src/assets/pandas.jpg";
+import scikitLearnLogo from "../src/src/assets/scikit-learn-logo.png";
+import kerasLogo from "../src/src/assets/keras.webp";
+import huggingFaceLogo from "../src/src/assets/huggingface.png";
+import dockerLogo from "../src/src/assets/docker.png";
+import airflowLogo from "../src/src/assets/apache-airflow.png";
+import gitLogo from "../src/src/assets/Git-Icon-1788C.png";
+import weightsBiasesLogo from "../src/src/assets/weightsnbiases.png";
+import tensorflowLogo from "../src/src/assets/tensorflow.png";
+import pythonLogo from "../src/src/assets/pythonlogo.png";
+import pytorchLogo from "../src/src/assets/pytorchlogo.png";
+import openCvLogo from "../src/src/assets/opencvlogo.png";
+import mediaPipeLogo from "../src/src/assets/mediapipelogo.png";
+import fastApiLogo from "../src/src/assets/fastapi.png";
+import googleColabLogo from "../src/src/assets/googlecolab.png";
+import supabaseLogo from "../src/src/assets/supabase.jpeg";
 
 export const profile = {
   name: "Kyle Maverick G. Roxas",          // shown in the nav bar ("alex · rivera")
@@ -43,8 +62,23 @@ export const skills = [
 
 // Small tag "pills" under the skill bars — just a flat list of tool names
 export const toolbelt = [
-  "NumPy", "Pandas", "scikit-learn", "Keras", "Hugging Face",
-  "AWS SageMaker", "Docker", "Airflow", "Git", "Weights & Biases",
+  { name: "NumPy", logo: numpyLogo },
+  { name: "Pandas", logo: pandasLogo },
+  { name: "scikit-learn", logo: scikitLearnLogo },
+  { name: "Keras", logo: kerasLogo },
+  { name: "Hugging Face", logo: huggingFaceLogo },
+  { name: "Docker", logo: dockerLogo },
+  { name: "Airflow", logo: airflowLogo },
+  { name: "Git", logo: gitLogo },
+  { name: "Weights & Biases", logo: weightsBiasesLogo },
+  { name: "TensorFlow", logo: tensorflowLogo },
+  { name: "Python", logo: pythonLogo },
+  { name: "PyTorch", logo: pytorchLogo },
+  { name: "OpenCV", logo: openCvLogo },
+  { name: "MediaPipe", logo: mediaPipeLogo },
+  { name: "FastAPI", logo: fastApiLogo },
+  { name: "Google Colab", logo: googleColabLogo },
+  { name: "Supabase", logo: supabaseLogo },
 ];
 
 export const coreTechGroups = [
@@ -78,70 +112,85 @@ export const projects = [
   {
     number: "01",
     visual: "signal",
-    title: "Add project title",
-    description: "Replace this description with the problem your project solves and the result it creates.",
-    tags: ["Python", "PyTorch", "API"],
-    problem: "Add the real problem statement",
-    stack: "Add the main technologies",
-    useCase: "Add the practical use case",
+    mark: "TY",
+    title: "Tinayu",
+    description: "AI-assisted personal color analysis that turns a photo into tailored clothing, makeup, and accent color recommendations.",
+    tags: ["Python", "MediaPipe", "OpenCV", "Next.js"],
+    problem: "Make personal color analysis more accessible than a manual consultation.",
+    stack: "MediaPipe facial landmarks, OpenCV color analysis, FastAPI, and Next.js.",
+    useCase: "Analyze a webcam capture or uploaded image and get a personalized color profile.",
+    href: "https://github.com/roxaskylemaverickgudalle-ctrl/Tinayu",
   },
   {
     number: "02",
     visual: "amber",
-    title: "Add project title",
-    description: "Use this space for a concise project summary, research note, or deployed system overview.",
-    tags: ["Computer Vision", "Docker", "MLOps"],
-    problem: "Add the real problem statement",
-    stack: "Add the main technologies",
-    useCase: "Add the practical use case",
+    mark: "VS",
+    title: "VeriSight",
+    description: "Classifies images as AI-generated or real and uses Grad-CAM to show which image regions influenced the prediction.",
+    tags: ["Python", "PyTorch", "ResNet18", "Grad-CAM", "Gradio"],
+    problem: "Help people inspect whether an image may be synthetic instead of returning only a label.",
+    stack: "ImageNet-pretrained ResNet18, transfer learning, and Grad-CAM.",
+    useCase: "Upload an image to receive a classification, confidence score, and visual explanation.",
+    href: "https://github.com/roxaskylemaverickgudalle-ctrl/VeriSight",
   },
   {
     number: "03",
     visual: "teal",
-    title: "Add project title",
-    description: "Show what you built, what changed because of it, and where visitors can explore the work.",
-    tags: ["NLP", "Transformers", "Data"],
-    problem: "Add the real problem statement",
-    stack: "Add the main technologies",
-    useCase: "Add the practical use case",
+    mark: "TB",
+    title: "Tina Build Coach",
+    description: "A project dashboard with project pages and local ONNX model inference.",
+    tags: ["TypeScript", "ONNX", "Supabase", "Vite"],
+    problem: "Bring project workflows and local model inference into one interface.",
+    stack: "Vite frontend, Supabase configuration, and a locally served ONNX model.",
+    useCase: "Explore a project dashboard and run the Tina model locally in the frontend.",
+    href: "https://github.com/roxaskylemaverickgudalle-ctrl/Tina-Model",
+  },
+  {
+    number: "04",
+    visual: "violet",
+    mark: "PT",
+    title: "PyJect — PyTorch Notebook",
+    description: "A Google Colab-ready notebook for experimenting with PyTorch and tensor-based machine learning workflows.",
+    tags: ["Python", "PyTorch", "Jupyter", "Google Colab"],
+    problem: "Provide a notebook workspace for hands-on PyTorch experimentation.",
+    stack: "Python and PyTorch in a Jupyter/Google Colab notebook.",
+    useCase: "Open the notebook in GitHub or launch it in Google Colab.",
+    href: "https://github.com/roxaskylemaverickgudalle-ctrl/Pytorch-Project",
   },
 ];
 
-export const projectScreenshots = [
-  { number: "01", title: "Add project screenshot", visual: "signal" },
-  { number: "02", title: "Add project screenshot", visual: "amber" },
-  { number: "03", title: "Add project screenshot", visual: "teal" },
-  { number: "04", title: "Add project screenshot", visual: "violet" },
-  { number: "05", title: "Add project screenshot", visual: "blue" },
-  { number: "06", title: "Add project screenshot", visual: "green" },
-];
+export const projectGallery = projects.map(({ number, title }) => ({
+  number,
+  title,
+  image: null,
+}));
 
 // Timeline — add/remove objects freely, order top to bottom (most recent first)
 export const experience = [
   {
-    period: "2023 — Present",
-    title: "Machine Learning Engineer",
-    org: "Placeholder Robotics Co.",
+    period: "2025",
+    title: "Full-Stack Developer",
+    org: "Programming School Platform",
     bullets: [
-      "Shipped a computer vision model to production, cutting inference latency by 40%.",
-      "Built the team's first automated retraining pipeline on SageMaker.",
+      "Developed a platform for a programming school.",
+      "Built an AI-code detection feature to help identify AI-generated code.",
     ],
   },
   {
-    period: "2021 — 2023",
-    title: "Data Scientist",
-    org: "Placeholder Analytics Inc.",
+    period: "2025",
+    title: "Frontend Developer",
+    org: "Barangay Talipapa Plant and Seed Exchange",
     bullets: [
-      "Developed forecasting models used across three product lines.",
-      "Partnered with product to translate model outputs into shipped features.",
+      "Built the frontend for a community inventory system used by barangay officials to track plant and seed exchange stocks and supplies.",
     ],
   },
   {
-    period: "2019 — 2021",
-    title: "Research Assistant, Applied ML Lab",
-    org: "Placeholder University",
+    period: "2024",
+    title: "Frontend Developer & Content Researcher",
+    org: "Mental Wellness Support Platform",
     bullets: [
-      "Co-authored a paper on efficient training for small-data regimes.",
+      "Gathered and organized information for a platform featuring book and movie recommendations, therapist contacts, and activities for reflection and enjoyment.",
+      "Contributed to building the platform's frontend.",
     ],
   },
 ];
@@ -219,6 +268,26 @@ export const certificates = [
     assetType: "image",
     field: "IT Fundamentals / Other",
   },
+  {
+    year: "2026",
+    status: "verified",
+    title: "Understanding Threats and Attacks",
+    issuer: "DICT Region III and Cisco Networking Academy",
+    id: "2026-09-ZMB-DL-01-OL-042",
+    asset: certificateConfluent,
+    assetType: "image",
+    field: "IT Fundamentals / Other",
+  },
+  {
+    year: "2026",
+    status: "verified",
+    title: "Data Streaming Engineer Foundations",
+    issuer: "Confluent",
+    id: "CONFLUENT-194818543",
+    asset: certificateThreats,
+    assetType: "image", 
+    field: "IT Fundamentals / Other",
+  },
 ];
 
 export const contact = {
@@ -226,7 +295,7 @@ export const contact = {
   blurb: "Open to ML engineering roles, research collaborations, and consulting on production deep learning systems.",
   links: [
     { label: "Email", value: "roxas.kylemaverick.gudalle@gmail.com", href: "mailto:roxas.kylemaverick.gudalle@gmail.com" },
-    { label: "LinkedIn", value: "/in/placeholder", href: "#" },
-    { label: "GitHub", value: "/placeholder", href: "#" },
+    { label: "LinkedIn", value: "linkedin.com/in/kyle-maverick-roxas-ab7994435", href: "https://www.linkedin.com/in/kyle-maverick-roxas-ab7994435/" },
+    { label: "GitHub", value: "@roxaskylemaverickgudalle-ctrl", href: "https://github.com/roxaskylemaverickgudalle-ctrl" },
   ],
 };
