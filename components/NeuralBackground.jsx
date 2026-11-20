@@ -24,13 +24,13 @@ export default function NeuralBackground() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
 
-    let W, H, nodes, pulses, rafId;
+    let W, H, nodes, pulses, rafId, lastFrameTime = 0;
     const MOUSE = { x: -9999, y: -9999 };
 
     function buildNodes() {
-      const count = Math.max(40, Math.min(110, Math.floor((W * H) / 15000)));
+      const count = Math.max(30, Math.min(80, Math.floor((W * H) / 26000)));
       nodes = [];
       for (let i = 0; i < count; i++) {
         const isAmber = Math.random() < 0.14;
@@ -56,6 +56,11 @@ export default function NeuralBackground() {
       canvas.style.height = H + "px";
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       buildNodes();
+      if (reduceMotion) {
+        step(performance.now());
+      } else if (document.visibilityState === "visible" && !rafId) {
+        rafId = requestAnimationFrame(step);
+      }
     }
 
     function maybeSpawnPulse(edgeList) {
@@ -66,7 +71,15 @@ export default function NeuralBackground() {
       }
     }
 
-    function step() {
+    function step(timestamp) {
+      rafId = 0;
+      if (document.visibilityState !== "visible") return;
+      if (!reduceMotion && timestamp - lastFrameTime < 1000 / 30) {
+        rafId = requestAnimationFrame(step);
+        return;
+      }
+      lastFrameTime = timestamp;
+
       ctx.clearRect(0, 0, W, H);
 
       const cx = W * 0.7, cy = H * 0.25;
@@ -144,18 +157,28 @@ export default function NeuralBackground() {
 
     function onMouseMove(e) { MOUSE.x = e.clientX; MOUSE.y = e.clientY; }
     function onMouseLeave() { MOUSE.x = -9999; MOUSE.y = -9999; }
+    function onVisibilityChange() {
+      if (document.visibilityState === "hidden") {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      } else if (!reduceMotion && !rafId) {
+        lastFrameTime = 0;
+        rafId = requestAnimationFrame(step);
+      }
+    }
 
     resize();
-    step();
     window.addEventListener("resize", resize);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseleave", onMouseLeave);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseleave", onMouseLeave);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, []);
 

@@ -74,34 +74,24 @@ npm run dev
 No extra libraries are required — everything here is plain React,
 plain CSS, and the Canvas API.
 
-## Portfolio chat service
+## Local portfolio AI chat
 
-The chat uses a small Vercel serverless function to call Hugging Face Inference Providers. It validates requests, adds portfolio context, and forwards them to the model. It does not host a model, use a database, or store chat history. Keep using GitHub Pages for the portfolio and deploy this repository to Vercel for the chat API only.
+The portfolio chat runs a compact semantic-search model directly in the visitor's browser using Transformers.js and ONNX Runtime Web. The first chat request downloads the quantized model from Hugging Face (about 23 MB of model weights, plus runtime files); the browser caches it for later visits. Responses are formed from the closest matching portfolio facts, and chat messages are not sent to an AI API. No API key, model server, Vercel function, or paid inference account is needed.
 
-### Requirements
+The assistant policy is defined in [`components/localPortfolioAssistant.js`](./components/localPortfolioAssistant.js), and its portfolio knowledge is stored in [`data/portfolioAssistantData.json`](./data/portfolioAssistantData.json). Relevant facts are embedded and searched locally for every response. If no portfolio fact is a close match, the assistant says that the information is unavailable instead of answering from general knowledge. Keep the data file accurate when updating projects, skills, experience, certifications, or contact details.
 
-- A Hugging Face token with the **Inference Providers** permission.
-- Access to `meta-llama/Llama-3.1-8B-Instruct`. Approval for the base `meta-llama/Llama-3.1-8B` model does not necessarily grant access to the Instruct model.
-- Hugging Face Inference Providers billing/credits. Free Hugging Face accounts currently have no included Inference Providers credits; check Hugging Face billing before enabling the public chat.
-- A Vercel account.
+### Run the demo
 
-### Deploy to Vercel
-
-Import this repository into Vercel and use the repository root as the project root. Vercel deploys the function at `/api/chat`; leave the build command empty because this Vercel project only hosts the API. Add these environment variables in **Vercel → Project → Settings → Environment Variables**:
-
-- `HF_TOKEN`: your Hugging Face token with Inference Providers permission. Keep it server-side; never use a `VITE_` variable for this token.
-- `CHAT_ALLOWED_ORIGIN`: `https://roxaskylemaverickgudalle-ctrl.github.io` (optional; this is the default production origin).
-- `HF_MODEL`: `meta-llama/Llama-3.1-8B-Instruct` (optional; this is the default model).
-
-Set the project root to the repository root and deploy. Your API URL will be `https://<your-vercel-project>.vercel.app/api/chat`. The API allows requests from the GitHub Pages origin and localhost during development. CORS only limits browser access; it is not authentication or abuse protection. Before sharing the public endpoint, configure a Vercel Firewall rate-limit rule if it is available for your plan, and monitor Hugging Face usage and billing.
-
-### Connect the portfolio
-
-Copy `src/.env.example` to `src/.env.local` and set `VITE_CHAT_API_URL` to your deployed Vercel `/api/chat` URL. `.env.local` is ignored by Git. Rebuild and deploy the GitHub Pages portfolio as usual from `src`:
+From the app directory:
 
 ```bash
-npm run build
-npm run deploy
+cd src
+npm install
+npm run dev
 ```
 
-For local development, set `VITE_CHAT_API_URL` to your deployed Vercel API in `src/.env.local`; localhost is allowed by the API CORS policy. To run the function locally, install the Vercel CLI and use `vercel dev` from the repository root, with `HF_TOKEN` in a local `.env.local` file (never commit it). Inference usage may incur charges according to your Hugging Face plan and selected provider.
+Open the local Vite URL and use the chat button. On the first question, allow the browser to download the local model; subsequent use should load it from the browser cache. A working internet connection is needed for that first download. No environment variables or API secrets are required. The model and portfolio data are public, while visitor prompts stay in the browser.
+
+### Model adapter
+
+The model is configured in [`components/localPortfolioAssistant.js`](./components/localPortfolioAssistant.js). It currently uses `Xenova/all-MiniLM-L6-v2` with 8-bit quantized weights for local semantic search. It retrieves factual snippets rather than generating open-ended answers, which keeps this small demo grounded in the portfolio. To change models or later connect an API, replace the `generatePortfolioReply` adapter while keeping the chat component's messages input and string response contract.

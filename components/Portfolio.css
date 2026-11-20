@@ -756,8 +756,9 @@ section{ padding: 56px 0; border-top: 1px solid var(--line); }
 }
 .project-screenshot-grid{
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
 }
 .project-screenshot{
   position: relative;
@@ -768,57 +769,49 @@ section{ padding: 56px 0; border-top: 1px solid var(--line); }
   border-radius: 7px;
   background: var(--bg-panel);
   box-shadow: 0 8px 20px rgba(23,27,36,0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .project-gallery-image{
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-}
-.project-gallery-placeholder{
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed var(--line);
-}
-.project-gallery-placeholder-icon{
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--signal);
-  font-size: 20px;
+  object-fit: contain;
 }
 .project-screenshot-caption{
   position: absolute;
-  right: 12px;
-  bottom: 10px;
-  left: 12px;
-  color: var(--ink);
+  top: 10px;
+  left: 10px;
+  padding: 6px 9px;
+  border-radius: 4px;
+  background: rgba(10,15,25,0.76);
+  color: #fff;
   font-family: var(--display);
   font-size: 13px;
   font-weight: 600;
-  text-align: center;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.project-screenshot:hover,
+.project-screenshot:focus-visible{
+  z-index: 1;
+  box-shadow: 0 14px 28px rgba(23,27,36,0.2);
+  transform: scale(1.04);
+}
+.project-screenshot:hover .project-screenshot-caption,
+.project-screenshot:focus-visible .project-screenshot-caption{
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (hover: none){
+  .project-screenshot-caption{
+    opacity: 1;
+    transform: none;
+  }
 }
 .project-visual-violet{ background: linear-gradient(135deg, #30204f, #965add); }
 .project-visual-blue{ background: linear-gradient(135deg, #123353, #2699d6); }
 .project-visual-green{ background: linear-gradient(135deg, #123a37, #35a477); }
-.project-screenshot{
-  display: block;
-  text-decoration: none;
-}
-.project-screenshot:hover .project-gallery-mark,
-.project-screenshot:focus-visible .project-gallery-mark{
-  background: rgba(10,15,25,0.42);
-  transform: translate(-50%, -50%) scale(1.08);
-}
-.project-gallery-mark{
-  transition: background 0.2s ease, transform 0.2s ease;
-}
 .project-card{
   overflow: hidden;
   border: 1px solid var(--line);
@@ -862,11 +855,28 @@ section{ padding: 56px 0; border-top: 1px solid var(--line); }
   left: -52px;
   bottom: -92px;
 }
+.project-visual.has-image::before{ display: none; }
+.project-visual.has-image::after{
+  inset: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(10,15,25,0.28), transparent 38%, rgba(10,15,25,0.12));
+}
+.project-visual-image{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .project-visual-signal{ background: linear-gradient(135deg, #17243d, #2f5ff6); }
 .project-visual-amber{ background: linear-gradient(135deg, #3f2918, #d77f20); }
 .project-visual-teal{ background: linear-gradient(135deg, #12383a, #168b8d); }
 .project-index{
   position: absolute;
+  z-index: 1;
   top: 16px;
   left: 18px;
   color: rgba(255,255,255,0.72);
@@ -1147,15 +1157,16 @@ footer{
 }
 .portfolio-chat-panel{
   display: flex;
-  width: min(360px, calc(100vw - 32px));
+  width: min(380px, calc(100vw - 32px));
   height: min(520px, calc(100dvh - 96px));
-  min-height: 280px;
+  min-height: 0;
   flex-direction: column;
   overflow: hidden;
+  padding: 0;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 14px;
   background: var(--bg-panel);
-  box-shadow: 0 12px 36px rgba(23,27,36,0.14);
+  box-shadow: 0 16px 48px rgba(23,27,36,0.18);
   animation: portfolio-chat-appear 0.2s ease-out;
 }
 @keyframes portfolio-chat-appear{
@@ -1165,19 +1176,19 @@ footer{
 .portfolio-chat-header{
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: 9px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--line);
   background: var(--bg-panel);
 }
 .portfolio-chat-avatar{
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   flex: 0 0 auto;
   place-items: center;
   border: 1px solid #D6DFF8;
-  border-radius: 8px;
+  border-radius: 9px;
   background: var(--signal-dim);
   color: var(--signal);
   font-family: var(--mono);
@@ -1187,7 +1198,7 @@ footer{
 .portfolio-chat-heading{ min-width: 0; flex: 1; }
 .portfolio-chat-heading h2{
   font-family: var(--display);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
 }
@@ -1195,10 +1206,10 @@ footer{
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -1206,7 +1217,7 @@ footer{
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--amber);
+  background: #368A58;
 }
 .portfolio-chat-close,
 .portfolio-chat-launcher,
@@ -1217,8 +1228,8 @@ footer{
   cursor: pointer;
 }
 .portfolio-chat-close{
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 6px;
   background: transparent;
   color: var(--ink-soft);
@@ -1243,7 +1254,7 @@ footer{
   align-items: flex-start;
   gap: 14px;
   overflow-y: auto;
-  padding: 18px 16px;
+  padding: 14px;
 }
 .portfolio-chat-message{
   max-width: 88%;
@@ -1256,7 +1267,10 @@ footer{
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
-.portfolio-chat-message p{ margin: 0; }
+.portfolio-chat-message p{
+  margin: 0;
+  white-space: pre-line;
+}
 .portfolio-chat-message-label{
   display: block;
   margin-bottom: 4px;
@@ -1272,16 +1286,32 @@ footer{
   background: var(--signal-dim);
   color: var(--ink);
 }
-.portfolio-chat-typing p span{
-  display: inline-block;
-  width: 18px;
-  overflow: hidden;
-  vertical-align: bottom;
-  animation: portfolio-chat-typing 1s steps(4, end) infinite;
+.portfolio-chat-typing{
+  min-width: 56px;
+  padding: 11px 14px;
+  border-radius: 14px 14px 14px 4px;
 }
-@keyframes portfolio-chat-typing{
-  from{ width: 0; }
-  to{ width: 18px; }
+.portfolio-chat-typing-dots{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 12px;
+}
+.portfolio-chat-typing-dots span{
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  animation: portfolio-chat-dot-wave 1s ease-in-out infinite;
+}
+.portfolio-chat-typing-dots span:nth-child(2){ animation-delay: 0.14s; }
+.portfolio-chat-typing-dots span:nth-child(3){ animation-delay: 0.28s; }
+@keyframes portfolio-chat-dot-wave{
+  0%, 60%, 100%{ opacity: 0.4; transform: translateY(0); }
+  30%{ opacity: 1; transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .portfolio-chat-typing-dots span{ animation: none; }
 }
 .portfolio-chat-error{
   width: 100%;
@@ -1341,14 +1371,14 @@ footer{
   font-size: 12px;
 }
 .portfolio-chat-footer{
-  padding: 12px 14px 10px;
+  padding: 9px 12px 8px;
   border-top: 1px solid var(--line);
   background: #FAFBFC;
 }
 .portfolio-chat-composer{
   display: flex;
   align-items: center;
-  padding: 4px 4px 4px 11px;
+  padding: 3px 3px 3px 10px;
   border: 1px solid var(--line);
   border-radius: 7px;
   background: var(--bg-panel);
@@ -1375,8 +1405,8 @@ footer{
 }
 .portfolio-chat-composer input::placeholder{ color: #7A8290; }
 .portfolio-chat-composer button{
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   flex: 0 0 auto;
   border-radius: 5px;
   background: var(--signal-dim);
@@ -1386,10 +1416,10 @@ footer{
 .portfolio-chat-composer button:hover:not(:disabled){ background: #D5E0FF; }
 .portfolio-chat-composer button:disabled{ cursor: not-allowed; opacity: 0.45; }
 .portfolio-chat-note{
-  padding-top: 7px;
+  padding-top: 5px;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
   text-align: center;
 }
 .portfolio-chat-launcher{
@@ -1397,31 +1427,31 @@ footer{
   width: 48px;
   height: 48px;
   place-items: center;
+  align-items: center;
+  justify-content: center;
   margin-top: 14px;
-  border: 1px solid var(--line);
+  padding: 0;
+  border: 1px solid var(--signal);
   border-radius: 50%;
-  background: var(--bg-panel);
-  box-shadow: 0 4px 14px rgba(23,27,36,0.14);
-  color: var(--signal);
+  background: var(--signal);
+  box-shadow: 0 6px 20px rgba(23,27,36,0.2);
+  color: #fff;
   cursor: pointer;
-  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 .portfolio-chat-launcher:hover{
   transform: translateY(-2px);
-  border-color: var(--signal);
-  background: var(--signal-dim);
+  background: #244ED6;
+  box-shadow: 0 8px 24px rgba(23,27,36,0.24);
 }
-.portfolio-chat-launcher.is-open{
-  width: 40px;
-  height: 40px;
-  margin-top: 14px;
-  border-radius: 50%;
-  background: var(--bg-panel);
-  color: var(--ink-soft);
-}
-.portfolio-chat-launcher.is-open:hover{
-  background: var(--bg);
-  color: var(--ink);
+.portfolio-chat-launcher svg{
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 @media (max-width: 720px){
@@ -1451,11 +1481,11 @@ footer{
   }
   .portfolio-chat{ right: 16px; bottom: 16px; }
   .portfolio-chat-panel{
-    width: min(360px, calc(100vw - 32px));
-    height: min(520px, calc(100dvh - 88px));
-    min-height: 260px;
+    width: min(380px, calc(100vw - 32px));
+    height: min(520px, calc(100dvh - 32px));
+    min-height: 0;
   }
-  .portfolio-chat-launcher{ width: 44px; height: 44px; }
+  .portfolio-chat-launcher{ width: 46px; height: 46px; }
 }
 
 @media (prefers-reduced-motion: reduce){

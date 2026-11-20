@@ -5,11 +5,13 @@ const reactRoot = fileURLToPath(new URL("./node_modules/react", import.meta.url)
 const reactDomRoot = fileURLToPath(new URL("./node_modules/react-dom", import.meta.url));
 const reactJsxRuntime = fileURLToPath(new URL("./node_modules/react/jsx-runtime.js", import.meta.url));
 const reactJsxDevRuntime = fileURLToPath(new URL("./node_modules/react/jsx-dev-runtime.js", import.meta.url));
+const transformersWeb = fileURLToPath(new URL("./node_modules/@huggingface/transformers/dist/transformers.web.js", import.meta.url));
 
 export default defineConfig({
   base: "/roxas-portfolio/",
   resolve: {
     alias: [
+      { find: /^@huggingface\/transformers$/, replacement: transformersWeb },
       { find: "react/jsx-runtime", replacement: reactJsxRuntime },
       { find: "react/jsx-dev-runtime", replacement: reactJsxDevRuntime },
       { find: /^react$/, replacement: reactRoot },

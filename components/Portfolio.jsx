@@ -11,6 +11,7 @@ import {
   projectGallery,
   contact,
 } from "../data/portfolioData";
+import { generatePortfolioReply } from "./localPortfolioAssistant";
 import "./Portfolio.css";
 
 export default function Portfolio() {
@@ -22,7 +23,6 @@ export default function Portfolio() {
   const [chatMessages, setChatMessages] = useState([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [chatError, setChatError] = useState("");
-  const chatApiUrl = import.meta.env.VITE_CHAT_API_URL?.trim();
   const certificatesSection = useRef(null);
   const navRef = useRef(null);
   const navInnerRef = useRef(null);
@@ -37,36 +37,26 @@ export default function Portfolio() {
     const message = chatDraft.trim();
     if (!message || isChatLoading) return;
 
+    const responseStartedAt = performance.now();
     const conversation = [...chatMessages, { role: "user", text: message }].slice(-12);
     setChatMessages(conversation);
     setChatError("");
     setIsChatLoading(true);
 
     try {
-      if (!chatApiUrl) {
-        throw new Error("Chat isn't configured yet. Add VITE_CHAT_API_URL to the portfolio environment.");
+      const reply = await generatePortfolioReply(conversation);
+      const minimumThinkingTime = Math.min(3000, 2000 + reply.length * 1.5);
+      const remainingThinkingTime = minimumThinkingTime - (performance.now() - responseStartedAt);
+      if (remainingThinkingTime > 0) {
+        await new Promise((resolve) => window.setTimeout(resolve, remainingThinkingTime));
       }
-
-      const response = await fetch(chatApiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: conversation.map(({ role, text }) => ({ role, content: text })),
-        }),
-      });
-      const payload = await response.json().catch(() => null);
-      if (!response.ok) {
-        throw new Error(payload?.error || "The chat service couldn't complete that request.");
-      }
-      if (typeof payload?.reply !== "string" || !payload.reply.trim()) {
-        throw new Error("The chat service returned an empty response. Please try again.");
-      }
-
-      setChatMessages((messages) => [...messages, { role: "assistant", text: payload.reply }]);
+      setChatMessages((messages) => [...messages, { role: "assistant", text: reply }]);
       setChatDraft("");
     } catch (error) {
       setChatMessages((messages) => messages.slice(0, -1));
-      setChatError(error instanceof Error ? error.message : "The chat request failed. Please try again.");
+      setChatError(error instanceof Error
+        ? error.message
+        : "The local AI couldn't respond. Check your connection and try again.");
     } finally {
       setIsChatLoading(false);
     }
@@ -386,11 +376,23 @@ export default function Portfolio() {
           <div className="projects-grid">
             {projects.map((project) => (
               <article className="project-card" key={project.number}>
-                <div className={`project-visual project-visual-${project.visual}`}>
+                <div className={`project-visual project-visual-${project.visual}${project.image ? " has-image" : ""}`}>
+                  {project.image ? (
+                    <img
+                      className="project-visual-image"
+                      src={project.image}
+                      alt={`${project.title} preview`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <>
+                      <span className="project-orbit project-orbit-one" />
+                      <span className="project-orbit project-orbit-two" />
+                      <span className="project-visual-mark">{project.mark}</span>
+                    </>
+                  )}
                   <span className="project-index">{project.number}</span>
-                  <span className="project-orbit project-orbit-one" />
-                  <span className="project-orbit project-orbit-two" />
-                  <span className="project-visual-mark">{project.mark}</span>
                 </div>
                 <div className="project-content">
                   <h3>{project.title}</h3>
@@ -403,14 +405,16 @@ export default function Portfolio() {
                     <p><strong>Stack:</strong> {project.stack}</p>
                     <p><strong>Use case:</strong> {project.useCase}</p>
                   </div>
-                  <a
-                    className="project-repo-link"
-                    href={project.href}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Explore on GitHub <span aria-hidden="true">↗</span>
-                  </a>
+                  {project.href && (
+                    <a
+                      className="project-repo-link"
+                      href={project.href}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Explore on GitHub <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
                 </div>
               </article>
             ))}
@@ -481,7 +485,13 @@ export default function Portfolio() {
             {carouselCertificates.map((c) => (
               <article className="certificate-document" key={c.id}>
                 {c.asset ? (
-                  <img className="certificate-preview" src={c.asset} alt={`${c.title} certificate`} />
+                  <img
+                    className="certificate-preview"
+                    src={c.asset}
+                    alt={`${c.title} certificate`}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
                   <div className="certificate-preview certificate-placeholder">
                     <strong>Add certificate image</strong>
@@ -523,14 +533,19 @@ export default function Portfolio() {
           </div>
           <div className="project-screenshot-grid">
             {projectGallery.map((item) => (
-              <figure className="project-screenshot" key={item.number}>
-                {item.image ? (
-                  <img className="project-gallery-image" src={item.image} alt={`${item.title} project`} />
-                ) : (
-                  <div className="project-gallery-placeholder">
-                    <span className="project-gallery-placeholder-icon" aria-hidden="true">+</span>
-                  </div>
-                )}
+              <figure
+                className="project-screenshot"
+                key={item.image}
+                tabIndex={0}
+                aria-label={`${item.title} project screenshot`}
+              >
+                <img
+                  className="project-gallery-image"
+                  src={item.image}
+                  alt={`${item.title} project`}
+                  loading="lazy"
+                  decoding="async"
+                />
                 <figcaption className="project-screenshot-caption">{item.title}</figcaption>
               </figure>
             ))}
@@ -565,7 +580,7 @@ export default function Portfolio() {
               <div className="portfolio-chat-avatar" aria-hidden="true">KR</div>
               <div className="portfolio-chat-heading">
                 <h2>Ask about my work</h2>
-                <span><i aria-hidden="true" /> {chatApiUrl ? "Llama 3.1 · Hugging Face" : "API setup required"}</span>
+                <span><i aria-hidden="true" /> Local AI · no API key</span>
               </div>
               <button
                 className="portfolio-chat-close"
@@ -592,11 +607,14 @@ export default function Portfolio() {
                   )}
                   <p>{message.text}</p>
                 </div>
-              ))}
+              )              )}
               {isChatLoading && (
-                <div className="portfolio-chat-message portfolio-chat-message-assistant portfolio-chat-typing" role="status">
-                  <span className="portfolio-chat-message-label">KR assistant</span>
-                  <p>Thinking<span aria-hidden="true">...</span></p>
+                <div className="portfolio-chat-message portfolio-chat-message-assistant portfolio-chat-typing" role="status" aria-label="Assistant is typing">
+                  <p className="portfolio-chat-typing-dots" aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                  </p>
                 </div>
               )}
               {chatError && (
@@ -643,24 +661,22 @@ export default function Portfolio() {
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z" /></svg>
                 </button>
               </form>
-              <p className="portfolio-chat-note">Powered by Llama 3.1 8B Instruct</p>
+              <p className="portfolio-chat-note">Runs in your browser · model downloads once</p>
             </div>
           </section>
         )}
 
-        <button
-          className={`portfolio-chat-launcher${isChatOpen ? " is-open" : ""}`}
-          type="button"
-          onClick={() => setIsChatOpen((open) => !open)}
-          aria-expanded={isChatOpen}
-          aria-label={isChatOpen ? "Close portfolio chat" : "Open portfolio chat"}
-        >
-          {isChatOpen ? (
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
-          ) : (
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.5-4A7.5 7.5 0 1 1 20 11.5Z" /><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" /></svg>
-          )}
-        </button>
+        {!isChatOpen && (
+          <button
+            className="portfolio-chat-launcher"
+            type="button"
+            onClick={() => setIsChatOpen(true)}
+            aria-expanded={false}
+            aria-label="Open portfolio chat"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.5-4A7.5 7.5 0 1 1 20 11.5Z" /></svg>
+          </button>
+        )}
       </aside>
     </>
   );

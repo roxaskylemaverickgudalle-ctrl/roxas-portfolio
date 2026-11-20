@@ -1,0 +1,92 @@
+{
+  "name": "Kyle Maverick G. Roxas",
+  "role": "Machine Learning & AI Engineer",
+  "summary": "Builds machine-learning projects from research and data workflows to deployed inference. The portfolio describes four years of experience.",
+  "projects": [
+    {
+      "name": "Tinayu",
+      "description": "AI-assisted personal color analysis that analyzes photos and suggests clothing, makeup, and accent colors.",
+      "technology": ["Python", "MediaPipe", "OpenCV", "FastAPI", "Next.js"]
+    },
+    {
+      "name": "VeriSight",
+      "description": "Classifies images as AI-generated or real and uses Grad-CAM to visualize which image regions influenced the prediction.",
+      "technology": ["Python", "PyTorch", "ResNet18", "Grad-CAM", "Gradio"]
+    },
+    {
+      "name": "Tina Build Coach",
+      "description": "A project dashboard with project pages and local ONNX model inference. The model's specific capabilities are not documented here.",
+      "technology": ["TypeScript", "ONNX", "Supabase", "Vite"]
+    },
+    {
+      "name": "PyJect",
+      "description": "A Google Colab-ready notebook for experimenting with PyTorch and tensor-based machine-learning workflows.",
+      "technology": ["Python", "PyTorch", "Jupyter", "Google Colab"]
+    },
+    {
+      "name": "Cloni — Outfit Recommender",
+      "description": "A responsive outfit-discovery concept for browsing and saving looks by occasion and style, with an optional guided front-and-back clothing scan. The local Python YOLOS Fashionpedia detector estimates garment labels, colors, confidence scores, and bounding boxes. AI text recommendations receive detected garment details rather than photos. Scan results are estimates, not body measurements or fit advice.",
+      "technology": ["React 19", "Vite", "MediaPipe Tasks Vision", "Express.js", "Python", "Hugging Face Inference Providers", "LocalStorage"]
+    }
+  ],
+  "experience": [
+    {
+      "period": "2025",
+      "role": "Full-Stack Developer",
+      "project": "Programming School Platform",
+      "details": "Developed platform features, including AI-code detection."
+    },
+    {
+      "period": "2025",
+      "role": "Frontend Developer",
+      "project": "Barangay Talipapa Plant and Seed Exchange",
+      "details": "Built a community inventory frontend for tracking plant and seed stocks and supplies."
+    },
+    {
+      "period": "2024",
+      "role": "Frontend Developer & Content Researcher",
+      "project": "Mental Wellness Support Platform",
+      "details": "Contributed frontend work and researched book and movie recommendations, therapist contacts, and activities for reflection and enjoyment."
+    }
+  ],
+  "skills": [
+    "Python",
+    "PyTorch",
+    "TensorFlow",
+    "scikit-learn",
+    "Keras",
+    "Computer Vision",
+    "NLP and Transformers",
+    "MLOps",
+    "SQL",
+    "Data Engineering",
+    "OpenCV",
+    "MediaPipe",
+    "FastAPI",
+    "Next.js",
+    "TypeScript",
+    "ONNX",
+    "Supabase",
+    "Vite",
+    "NumPy",
+    "Pandas",
+    "Hugging Face",
+    "Docker",
+    "Airflow",
+    "Git",
+    "Weights & Biases"
+  ],
+  "certifications": [
+    "Azure AI Fundamentals — TESDA Online Program",
+    "Basics of Artificial Intelligence — UniAthena with Cambridge International Qualifications",
+    "Basics of Machine Learning Algorithms — UniAthena with Cambridge International Qualifications",
+    "Basics of Python — UniAthena with Cambridge International Qualifications",
+    "Plesk Obsidian Linux Expert — Plesk University",
+    "Data Streaming Engineer Foundations — Confluent"
+  ],
+  "contact": {
+    "email": "roxas.kylemaverick.gudalle@gmail.com",
+    "linkedin": "linkedin.com/in/kyle-maverick-roxas-ab7994435",
+    "github": "github.com/roxaskylemaverickgudalle-ctrl"
+  }
+}

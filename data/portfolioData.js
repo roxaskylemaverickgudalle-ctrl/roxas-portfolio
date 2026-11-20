@@ -34,6 +34,17 @@ import mediaPipeLogo from "../src/src/assets/mediapipelogo.png";
 import fastApiLogo from "../src/src/assets/fastapi.png";
 import googleColabLogo from "../src/src/assets/googlecolab.png";
 import supabaseLogo from "../src/src/assets/supabase.jpeg";
+import tinaModelCover from "../src/src/assets/project-images/Tinamodelproject.png";
+import tinaModelGallery from "../src/src/assets/project-images/tinamodelprojectgallery.png";
+import tinaModelGalleryTwo from "../src/src/assets/project-images/tinamodelgallery2.png";
+import tinaYuCover from "../src/src/assets/project-images/tinayuprojectss.png";
+import tinaYuGallery from "../src/src/assets/project-images/tinayussprojectgallery.png";
+import veriSightCover from "../src/src/assets/project-images/verisightssproject.png";
+import veriSightGallery from "../src/src/assets/project-images/verisightSSprojectforgallery.png";
+import cloniCover from "../src/src/assets/project-images/clonissproject.jpg";
+import cloniGallery from "../src/src/assets/project-images/clonissprojectgallery.jpg";
+import pyjectCover from "../src/src/assets/project-images/pyjectprojectss.png";
+import pyjectGallery from "../src/src/assets/project-images/pyjectssprojectgallery.png";
 
 export const profile = {
   name: "Kyle Maverick G. Roxas",          // shown in the nav bar ("alex · rivera")
@@ -114,6 +125,7 @@ export const projects = [
     visual: "signal",
     mark: "TY",
     title: "Tinayu",
+    image: tinaYuCover,
     description: "AI-assisted personal color analysis that turns a photo into tailored clothing, makeup, and accent color recommendations.",
     tags: ["Python", "MediaPipe", "OpenCV", "Next.js"],
     problem: "Make personal color analysis more accessible than a manual consultation.",
@@ -126,6 +138,7 @@ export const projects = [
     visual: "amber",
     mark: "VS",
     title: "VeriSight",
+    image: veriSightCover,
     description: "Classifies images as AI-generated or real and uses Grad-CAM to show which image regions influenced the prediction.",
     tags: ["Python", "PyTorch", "ResNet18", "Grad-CAM", "Gradio"],
     problem: "Help people inspect whether an image may be synthetic instead of returning only a label.",
@@ -138,6 +151,7 @@ export const projects = [
     visual: "teal",
     mark: "TB",
     title: "Tina Build Coach",
+    image: tinaModelCover,
     description: "A project dashboard with project pages and local ONNX model inference.",
     tags: ["TypeScript", "ONNX", "Supabase", "Vite"],
     problem: "Bring project workflows and local model inference into one interface.",
@@ -150,6 +164,7 @@ export const projects = [
     visual: "violet",
     mark: "PT",
     title: "PyJect — PyTorch Notebook",
+    image: pyjectCover,
     description: "A Google Colab-ready notebook for experimenting with PyTorch and tensor-based machine learning workflows.",
     tags: ["Python", "PyTorch", "Jupyter", "Google Colab"],
     problem: "Provide a notebook workspace for hands-on PyTorch experimentation.",
@@ -157,13 +172,28 @@ export const projects = [
     useCase: "Open the notebook in GitHub or launch it in Google Colab.",
     href: "https://github.com/roxaskylemaverickgudalle-ctrl/Pytorch-Project",
   },
+  {
+    number: "05",
+    visual: "violet",
+    mark: "CL",
+    title: "Cloni — Outfit Recommender",
+    image: cloniCover,
+    description: "A responsive outfit-discovery concept for browsing and saving looks, with an optional front-and-back clothing scan for AI styling suggestions.",
+    tags: ["React 19", "Vite", "MediaPipe", "Express", "Python", "Hugging Face"],
+    problem: "Make outfit ideas easier to discover and personalize by occasion, style, and the garments a person already wears.",
+    stack: "React 19 and Vite, MediaPipe Tasks Vision, an Express API, a Python YOLOS Fashionpedia detector, Hugging Face Inference Providers, and LocalStorage.",
+    useCase: "Filter and save outfit ideas by occasion and style, then optionally scan front and back camera views for estimated garment labels and styling suggestions. Photos are processed locally; only detected garment details are sent for text recommendations. Results are estimates, not body measurements or fit advice.",
+  },
 ];
 
-export const projectGallery = projects.map(({ number, title }) => ({
-  number,
-  title,
-  image: null,
-}));
+export const projectGallery = [
+  { number: "01", title: "Tinayu", image: tinaYuGallery },
+  { number: "02", title: "VeriSight", image: veriSightGallery },
+  { number: "03", title: "Tina Build Coach", image: tinaModelGallery },
+  { number: "03", title: "Tina Build Coach", image: tinaModelGalleryTwo },
+  { number: "04", title: "PyJect", image: pyjectGallery },
+  { number: "05", title: "Cloni", image: cloniGallery },
+];
 
 // Timeline — add/remove objects freely, order top to bottom (most recent first)
 export const experience = [
