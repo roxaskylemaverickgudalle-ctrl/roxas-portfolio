@@ -5,6 +5,7 @@ import {
   heroChart,
   toolbelt,
   experience,
+  education,
   certificates,
   coreTechGroups,
   projects,
@@ -16,6 +17,8 @@ import "./Portfolio.css";
 
 export default function Portfolio() {
   const [certificateField, setCertificateField] = useState("All");
+  const [showAllExperience, setShowAllExperience] = useState(false);
+  const [activeEducationCertificate, setActiveEducationCertificate] = useState(null);
   const [isCertificateAutoScrollActive, setIsCertificateAutoScrollActive] = useState(true);
   const [isCertificateVisible, setIsCertificateVisible] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -31,6 +34,8 @@ export default function Portfolio() {
   const navMonogramRef = useRef(null);
   const certificatesScroller = useRef(null);
   const certificateDrag = useRef(null);
+  const educationCertificateTrigger = useRef(null);
+  const educationCertificateCloseButton = useRef(null);
 
   const sendChatMessage = async (event) => {
     event.preventDefault();
@@ -61,6 +66,25 @@ export default function Portfolio() {
       setIsChatLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!activeEducationCertificate) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setActiveEducationCertificate(null);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    educationCertificateCloseButton.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+      educationCertificateTrigger.current?.focus();
+    };
+  }, [activeEducationCertificate]);
 
   const certificateFields = ["All", ...new Set(certificates.map((certificate) => certificate.field))];
   const visibleCertificates = certificateField === "All"
@@ -423,21 +447,76 @@ export default function Portfolio() {
 
         {/* ---------- EXPERIENCE ---------- */}
         <section id="experience">
-          <div className="section-head">
-            <h2>Experience</h2>
-            <span className="count">{String(experience.length).padStart(2, "0")} roles</span>
-          </div>
-          <div className="timeline">
-            {experience.map((role) => (
-              <div className="tl-item" key={role.title + role.period}>
-                <div className="meta">{role.period}</div>
-                <h3>{role.title}</h3>
-                <div className="org">{role.org}</div>
-                <ul>
-                  {role.bullets.map((b, i) => <li key={i}>{b}</li>)}
-                </ul>
+          <div className="experience-education-grid">
+            <div className="experience-column">
+              <div className="section-head">
+                <h2>Experience</h2>
+                <span className="count">{String(experience.length).padStart(2, "0")} roles</span>
               </div>
-            ))}
+              <div
+                className={`timeline experience-timeline${showAllExperience ? " is-expanded" : " is-collapsed"}`}
+                id="experience-timeline"
+              >
+                {experience.slice(0, showAllExperience ? experience.length : 4).map((role) => (
+                  <div className="tl-item" key={`${role.title}-${role.period}-${role.org}`}>
+                    <div className="meta">{role.period}</div>
+                    <h3>{role.title}</h3>
+                    <div className="org">{role.org}</div>
+                    <ul>
+                      {role.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              {experience.length > 4 && (
+                <button
+                  className="experience-toggle"
+                  type="button"
+                  onClick={() => setShowAllExperience((showAll) => !showAll)}
+                  aria-expanded={showAllExperience}
+                  aria-controls="experience-timeline"
+                >
+                  {showAllExperience ? "Show less ↑" : "See more ↓"}
+                </button>
+              )}
+            </div>
+            <div className="education-column">
+              <div className="section-head">
+                <h2>Education</h2>
+                <span className="count">{String(education.length).padStart(2, "0")} schools</span>
+              </div>
+              <div className="timeline">
+                {education.map((item) => (
+                  <div className="tl-item" key={`${item.level}-${item.period}`}>
+                    <div className="meta">{item.period}</div>
+                    <h3>{item.level}</h3>
+                    <div className="org">{item.school}</div>
+                    {item.honors.length > 0 && (
+                      <div className="education-honors" aria-label="Academic honors">
+                        {item.honors.map((honor) => <span key={honor}>{honor}</span>)}
+                      </div>
+                    )}
+                    {item.certificate && (
+                      <button
+                        ref={educationCertificateTrigger}
+                        className="education-certificate-preview"
+                        type="button"
+                        onClick={() => setActiveEducationCertificate(item.certificate)}
+                        aria-label="View Senior High School certificate"
+                      >
+                        <img
+                          src={item.certificate}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <span>View certificate</span>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
@@ -570,6 +649,40 @@ export default function Portfolio() {
           </div>
         </section>
       </main>
+
+      {activeEducationCertificate && (
+        <div
+          className="certificate-lightbox"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setActiveEducationCertificate(null);
+          }}
+        >
+          <section
+            className="certificate-lightbox-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="education-certificate-title"
+          >
+            <div className="certificate-lightbox-header">
+              <h2 id="education-certificate-title">Senior High School Certificate</h2>
+              <button
+                ref={educationCertificateCloseButton}
+                className="certificate-lightbox-close"
+                type="button"
+                onClick={() => setActiveEducationCertificate(null)}
+                aria-label="Close certificate"
+              >
+                ×
+              </button>
+            </div>
+            <img
+              className="certificate-lightbox-image"
+              src={activeEducationCertificate}
+              alt="Certificate of Academic Excellence for Senior High School"
+            />
+          </section>
+        </div>
+      )}
 
       <footer>built with React — edit src/data/portfolioData.js to make it yours</footer>
 

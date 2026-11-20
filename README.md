@@ -23,6 +23,7 @@ objects/arrays for:
 - `skills` — name + percentage for each skill bar
 - `toolbelt` — the flat list of tool "pill" tags
 - `experience` — your work history timeline (add/remove entries freely)
+- `education` — schools, study periods, and academic honors
 - `certificates` — the dedicated certificates grid (year, status, title,
   issuer, credential ID)
 - `contact` — heading, blurb, and your email/LinkedIn/GitHub links
@@ -78,7 +79,7 @@ plain CSS, and the Canvas API.
 
 The portfolio chat runs a compact semantic-search model directly in the visitor's browser using Transformers.js and ONNX Runtime Web. The first chat request downloads the quantized model from Hugging Face (about 23 MB of model weights, plus runtime files); the browser caches it for later visits. Responses are formed from the closest matching portfolio facts, and chat messages are not sent to an AI API. No API key, model server, Vercel function, or paid inference account is needed.
 
-The assistant policy is defined in [`components/localPortfolioAssistant.js`](./components/localPortfolioAssistant.js), and its portfolio knowledge is stored in [`data/portfolioAssistantData.json`](./data/portfolioAssistantData.json). Relevant facts are embedded and searched locally for every response. If no portfolio fact is a close match, the assistant says that the information is unavailable instead of answering from general knowledge. Keep the data file accurate when updating projects, skills, experience, certifications, or contact details.
+The assistant policy is defined in [`components/localPortfolioAssistant.js`](./components/localPortfolioAssistant.js), and its portfolio knowledge is stored in [`data/portfolioAssistantData.json`](./data/portfolioAssistantData.json). Relevant facts are embedded and searched locally for every response. If no portfolio fact is a close match, the assistant says that the information is unavailable instead of answering from general knowledge. Keep the data file accurate when updating projects, skills, experience, education, certifications, or contact details.
 
 ### Run the demo
 

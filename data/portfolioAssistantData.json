@@ -47,6 +47,32 @@
       "role": "Frontend Developer & Content Researcher",
       "project": "Mental Wellness Support Platform",
       "details": "Contributed frontend work and researched book and movie recommendations, therapist contacts, and activities for reflection and enjoyment."
+    },
+    {
+      "period": "2024",
+      "role": "Work Immersion",
+      "project": "4Core Structured Cabling Solution Incorporated",
+      "details": "Gained technical knowledge and troubleshooting experience while assisting customers effectively."
+    },
+    {
+      "period": "2023–2024",
+      "role": "Integrity Crusader",
+      "project": "Office of the Ombudsman",
+      "details": "Volunteered, communicating and collaborating with people from diverse backgrounds."
+    }
+  ],
+  "education": [
+    {
+      "period": "2016–2022",
+      "level": "Junior High School",
+      "school": "Novaliches High School",
+      "honors": []
+    },
+    {
+      "period": "2022–2024",
+      "level": "Senior High School",
+      "school": "Novaliches High School",
+      "honors": ["With Honors — Grade 11", "With High Honors — Grade 12"]
     }
   ],
   "skills": [

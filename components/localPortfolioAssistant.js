@@ -37,6 +37,10 @@ function createFacts() {
       title: `${item.period} experience — ${item.role}`,
       content: `${item.role} (${item.period}) on ${item.project}: ${item.details}`,
     })),
+    ...portfolioData.education.map((item) => ({
+      title: `${item.level} education`,
+      content: `${item.level} at ${item.school} (${item.period}). Honors: ${item.honors.length > 0 ? item.honors.join(", ") : "none listed"}.`,
+    })),
     {
       title: "Skills and tools",
       content: `Skills and tools: ${portfolioData.skills.join(", ")}.`,

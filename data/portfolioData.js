@@ -45,6 +45,7 @@ import cloniCover from "../src/src/assets/project-images/clonissproject.jpg";
 import cloniGallery from "../src/src/assets/project-images/clonissprojectgallery.jpg";
 import pyjectCover from "../src/src/assets/project-images/pyjectprojectss.png";
 import pyjectGallery from "../src/src/assets/project-images/pyjectssprojectgallery.png";
+import seniorHighHonorsCertificate from "../src/src/assets/project-images/withhighcert.jpg";
 
 export const profile = {
   name: "Kyle Maverick G. Roxas",          // shown in the nav bar ("alex · rivera")
@@ -216,12 +217,44 @@ export const experience = [
   },
   {
     period: "2024",
+    title: "Work Immersion",
+    org: "4Core Structured Cabling Solution Incorporated",
+    bullets: [
+      "Gained technical knowledge and troubleshooting experience while assisting customers effectively.",
+    ],
+  },
+  {
+    period: "2024",
     title: "Frontend Developer & Content Researcher",
     org: "Mental Wellness Support Platform",
     bullets: [
       "Gathered and organized information for a platform featuring book and movie recommendations, therapist contacts, and activities for reflection and enjoyment.",
       "Contributed to building the platform's frontend.",
     ],
+  },
+  {
+    period: "2023–2024",
+    title: "Integrity Crusader",
+    org: "Office of the Ombudsman",
+    bullets: [
+      "Volunteered with the Office of the Ombudsman, communicating and collaborating with people from diverse backgrounds.",
+    ],
+  },
+];
+
+export const education = [
+  {
+    period: "2016–2022",
+    level: "Junior High School",
+    school: "Novaliches High School",
+    honors: [],
+  },
+  {
+    period: "2022–2024",
+    level: "Senior High School",
+    school: "Novaliches High School",
+    honors: ["With Honors — Grade 11", "With High Honors — Grade 12"],
+    certificate: seniorHighHonorsCertificate,
   },
 ];
 
